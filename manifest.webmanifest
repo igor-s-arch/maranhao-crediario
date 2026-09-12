@@ -1,0 +1,18 @@
+{
+  "name": "cred-MARANHAO",
+  "short_name": "cred-MARANHAO",
+  "description": "Pré-cadastro do crediário da Loja Maranhão",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#050505",
+  "icons": [
+    {
+      "src": "assets/icone-app.jpeg",
+      "sizes": "any",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
