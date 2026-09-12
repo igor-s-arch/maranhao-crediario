@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 220" role="img" aria-labelledby="t d">
+<title id="t">Maranhão</title><desc id="d">Logo estilizada Maranhão Ditando Moda</desc>
+<defs><linearGradient id="g" x1="0" x2="1"><stop stop-color="#ffcf00"/><stop offset="1" stop-color="#ff9f00"/></linearGradient><filter id="s"><feDropShadow dx="0" dy="6" stdDeviation="4" flood-color="#000" flood-opacity=".55"/></filter></defs>
+<path d="M175 75 C330 -20 585 20 815 74 C708 70 610 68 510 72 C390 78 285 88 175 105 Z" fill="#e62b20"/>
+<path d="M175 73 C332 0 575 34 792 70 C682 48 594 48 504 52 C383 57 284 66 175 94 Z" fill="url(#g)"/>
+<rect x="18" y="48" width="118" height="118" rx="18" fill="#ffd20a" stroke="#e4231a" stroke-width="8"/>
+<path d="M55 78 C80 70 98 70 111 75 C94 89 85 103 80 118 C73 137 58 144 45 140 C54 122 59 100 55 78Z" fill="#e4231a"/>
+<polygon points="103,71 109,83 123,85 113,95 116,109 103,102 90,109 93,95 83,85 97,83" fill="#e4231a"/>
+<text x="77" y="154" text-anchor="middle" font-family="Arial Black,Arial" font-size="19" fill="#111">Maranhão</text>
+<text x="150" y="145" font-family="Arial Black,Arial" font-size="98" font-weight="900" letter-spacing="-7" fill="#111" stroke="#ffd20a" stroke-width="9" paint-order="stroke" filter="url(#s)">Maranhão</text>
+<rect x="585" y="118" width="202" height="45" rx="20" fill="#e32620" transform="rotate(-3 585 118)"/>
+<text x="686" y="149" text-anchor="middle" font-family="Arial Black,Arial" font-size="27" fill="#fff" transform="rotate(-3 686 149)">DITANDO MODA...</text>
+</svg>
