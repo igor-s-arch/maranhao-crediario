@@ -117,7 +117,7 @@ function validateCurrent(){
 
 function fileToPayload(file){
   if(!file)return Promise.resolve(null);
-  return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve({base64:r.result,nome:file.name,tipo:file.type});r.onerror=reject;r.readAsDataURL(file)});
+  return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve({base64:r.result,nome:file.name,type:file.type});r.onerror=reject;r.readAsDataURL(file)});
 }
 
 async function submit(){
