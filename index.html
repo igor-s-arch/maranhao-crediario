@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#111111" />
+  <title>Maranhão | Pré-cadastro</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main id="app">
+    <section class="screen cover" id="cover">
+      <div class="brand">
+        <div class="brand-name">Maranhão</div>
+        <div class="brand-slogan">AS LOJAS QUE TE VENDEM FIADO!</div>
+      </div>
+      <div class="hero">
+        <span class="tag">CREDIÁRIO PRÓPRIO</span>
+        <h1>Seu crédito,<br><strong>do seu jeito!</strong></h1>
+        <p>Faça seu pré-cadastro de forma rápida e segura.</p>
+        <div class="benefits">
+          <span>✓ Compre fiado</span>
+          <span>✓ Benefícios para quem paga em dia</span>
+          <span>✓ Moda, calçados, bolsas e acessórios</span>
+        </div>
+      </div>
+      <button class="primary" id="startBtn">FAÇA SEU PRÉ-CADASTRO AGORA</button>
+      <div class="privacy">🔒 Seus dados estão protegidos com a gente.</div>
+    </section>
+
+    <section class="screen form-screen hidden" id="formScreen">
+      <header class="form-header">
+        <div><strong>Maranhão</strong><small>Pré-cadastro do crediário</small></div>
+        <span id="stepLabel">1 de 7</span>
+      </header>
+      <div class="progress"><div id="progressBar"></div></div>
+      <form id="preCadastroForm" novalidate>
+        <div id="stepContent"></div>
+        <div class="actions">
+          <button type="button" class="secondary" id="backBtn">Voltar</button>
+          <button type="button" class="primary" id="nextBtn">Continuar</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="screen success hidden" id="successScreen">
+      <div class="success-icon">✓</div>
+      <h2>Pré-cadastro enviado com sucesso!</h2>
+      <p>Seu número de protocolo é:</p>
+      <div class="protocol" id="protocol">MA-XXXXXXXX</div>
+      <div class="notice">
+        <strong>Para finalizarmos o seu cadastro</strong>
+        <p>Vá até a <b>Loja Maranhão</b> e apresente o seu número de protocolo.</p>
+        <p>📍 Rua São Paulo do Norte, nº 40 – Centro<br>CEP 65940-000 – Grajaú/MA</p>
+        <p>📲 Não se esqueça de verificar pelo nosso WhatsApp se o seu cadastro foi aprovado.</p>
+      </div>
+      <p class="warning">⚠️ Guarde o seu número de protocolo.</p>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
