@@ -7,19 +7,61 @@ let clients=[];
 let current=null;
 
 async function boot(){
+  db.auth.onAuthStateChange(async(event,session)=>{
+    if(event==='PASSWORD_RECOVERY'&&session){
+      const nova=prompt('Digite sua nova senha (mínimo 6 caracteres):');
+      if(nova&&nova.length>=6){const {error}=await db.auth.updateUser({password:nova});alert(error?'Não foi possível alterar a senha.':'Senha alterada com sucesso.');}
+    }
+  });
   const {data:{session}}=await db.auth.getSession();
   if(session) await enterPanel(); else showLogin();
 }
 function showLogin(){ $('#loginScreen').classList.remove('hidden'); $('#panelScreen').classList.add('hidden'); }
+function showLoginBox(){ $('#signupBox').classList.add('hidden'); $('#loginBox').classList.remove('hidden'); $('#signupMsg').classList.add('hidden'); }
+function showSignupBox(){ $('#loginBox').classList.add('hidden'); $('#signupBox').classList.remove('hidden'); }
+
+async function ensureAccessRequest(user){
+  const nome=user.user_metadata?.nome||user.email?.split('@')[0]||'Funcionário';
+  const {data:existing}=await db.from('loja_usuarios').select('user_id').eq('user_id',user.id).maybeSingle();
+  if(existing)return;
+  await db.from('loja_usuarios').insert({user_id:user.id,nome,ativo:false});
+}
+
 async function enterPanel(){
   const {data:{user}}=await db.auth.getUser();
   if(!user){showLogin();return}
+  await ensureAccessRequest(user);
   const {data:access,error}=await db.from('loja_usuarios').select('nome,ativo').eq('user_id',user.id).maybeSingle();
-  if(error||!access?.ativo){ await db.auth.signOut(); $('#loginError').textContent='Este usuário não tem acesso ativo ao Painel da Loja.'; $('#loginError').classList.remove('hidden'); showLogin(); return; }
+  if(error||!access?.ativo){ await db.auth.signOut(); $('#loginError').textContent='Conta criada, mas o acesso ainda não foi liberado pela loja.'; $('#loginError').classList.remove('hidden'); showLogin(); return; }
   $('#staffName').textContent=access.nome||user.email||'Funcionário';
   $('#loginScreen').classList.add('hidden'); $('#panelScreen').classList.remove('hidden');
   await loadClients();
 }
+
+$('#showSignup').onclick=showSignupBox;
+$('#backToLogin').onclick=showLoginBox;
+
+$('#signupForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const nome=$('#signupName').value.trim(), email=$('#signupEmail').value.trim(), senha=$('#signupPassword').value, senha2=$('#signupPassword2').value;
+  const msg=$('#signupMsg'); msg.classList.add('hidden');
+  if(senha!==senha2){msg.textContent='As senhas não são iguais.';msg.className='notice error';return}
+  const btn=$('#signupBtn');btn.disabled=true;btn.textContent='CRIANDO...';
+  const {data,error}=await db.auth.signUp({email,password:senha,options:{data:{nome}}});
+  btn.disabled=false;btn.textContent='CRIAR CONTA';
+  if(error){msg.textContent='Não foi possível criar a conta: '+error.message;msg.className='notice error';return}
+  if(data.session&&data.user){await ensureAccessRequest(data.user);await db.auth.signOut();}
+  msg.textContent=data.session?'Conta criada. Agora aguarde a liberação da loja.':'Conta criada. Confira seu e-mail para confirmar o cadastro e depois aguarde a liberação da loja.';
+  msg.className='notice success-note';
+});
+
+$('#forgotPassword').onclick=async()=>{
+  const email=$('#email').value.trim();
+  if(!email){$('#loginError').textContent='Digite seu e-mail primeiro.';$('#loginError').classList.remove('hidden');return}
+  const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:location.href.split('#')[0]});
+  $('#loginError').textContent=error?'Não foi possível enviar a recuperação.':'Enviamos um link de recuperação para seu e-mail.';
+  $('#loginError').classList.remove('hidden');
+};
 
 $('#loginForm').addEventListener('submit',async e=>{
   e.preventDefault(); const btn=$('#loginBtn'); btn.disabled=true; btn.textContent='ENTRANDO...'; $('#loginError').classList.add('hidden');
