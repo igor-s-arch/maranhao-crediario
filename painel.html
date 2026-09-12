@@ -15,61 +15,50 @@
         <img class="login-logo" src="WhatsApp%20Image%202026-09-10%20at%2016.10.08.jpeg" alt="Maranhão" />
         <h1>Painel da Loja</h1>
         <p>Acesso exclusivo para funcionários autorizados.</p>
-        <form id="loginForm">
-          <label>E-mail<input id="email" type="email" autocomplete="username" required></label>
-          <label>Senha<input id="password" type="password" autocomplete="current-password" required></label>
-          <button id="loginBtn" type="submit">ENTRAR</button>
-          <p id="loginError" class="error hidden"></p>
-        </form>
+
+        <div id="loginBox">
+          <form id="loginForm">
+            <label>E-mail<input id="email" type="email" autocomplete="username" required></label>
+            <label>Senha<input id="password" type="password" autocomplete="current-password" required></label>
+            <button id="loginBtn" type="submit">ENTRAR</button>
+            <p id="loginError" class="error hidden"></p>
+          </form>
+          <div class="login-links">
+            <button type="button" class="link-btn" id="showSignup">Criar conta</button>
+            <button type="button" class="link-btn" id="forgotPassword">Esqueci minha senha</button>
+          </div>
+        </div>
+
+        <div id="signupBox" class="hidden">
+          <h2>Criar conta de funcionário</h2>
+          <p class="muted">A conta é criada, mas o acesso ao painel só é liberado depois da autorização da loja.</p>
+          <form id="signupForm">
+            <label>Nome completo<input id="signupName" type="text" autocomplete="name" required></label>
+            <label>E-mail<input id="signupEmail" type="email" autocomplete="email" required></label>
+            <label>Senha<input id="signupPassword" type="password" minlength="6" autocomplete="new-password" required></label>
+            <label>Confirmar senha<input id="signupPassword2" type="password" minlength="6" autocomplete="new-password" required></label>
+            <button id="signupBtn" type="submit">CRIAR CONTA</button>
+            <p id="signupMsg" class="notice hidden"></p>
+          </form>
+          <button type="button" class="link-btn back-link" id="backToLogin">← Voltar para entrar</button>
+        </div>
       </div>
     </section>
 
     <section id="panelScreen" class="panel-screen hidden">
       <header class="topbar">
         <img src="WhatsApp%20Image%202026-09-10%20at%2016.10.08.jpeg" alt="Maranhão" />
-        <div class="top-actions">
-          <span id="staffName">Painel da Loja</span>
-          <button id="logoutBtn" class="ghost">Sair</button>
-        </div>
+        <div class="top-actions"><span id="staffName">Painel da Loja</span><button id="logoutBtn" class="ghost">Sair</button></div>
       </header>
-
       <div class="panel-wrap">
-        <div class="heading-row">
-          <div><h1>Pré-cadastros</h1><p>Clientes enviados pelo aplicativo.</p></div>
-          <button id="refreshBtn" class="primary small">Atualizar</button>
-        </div>
-
+        <div class="heading-row"><div><h1>Pré-cadastros</h1><p>Clientes enviados pelo aplicativo.</p></div><button id="refreshBtn" class="primary small">Atualizar</button></div>
         <div class="stats" id="stats"></div>
-
-        <div class="filters">
-          <input id="searchInput" placeholder="Buscar por nome, CPF, WhatsApp ou protocolo">
-          <select id="statusFilter">
-            <option value="">Todos os status</option>
-            <option value="novo">Novo</option>
-            <option value="em_analise">Em análise</option>
-            <option value="pendente_documentos">Pendente documentos</option>
-            <option value="aprovado">Aprovado</option>
-            <option value="reprovado">Reprovado</option>
-            <option value="finalizado">Finalizado</option>
-          </select>
-        </div>
-
-        <div id="loading" class="loading hidden">Carregando...</div>
-        <div id="empty" class="empty hidden">Nenhum pré-cadastro encontrado.</div>
-        <div id="clientList" class="client-list"></div>
+        <div class="filters"><input id="searchInput" placeholder="Buscar por nome, CPF, WhatsApp ou protocolo"><select id="statusFilter"><option value="">Todos os status</option><option value="novo">Novo</option><option value="em_analise">Em análise</option><option value="pendente_documentos">Pendente documentos</option><option value="aprovado">Aprovado</option><option value="reprovado">Reprovado</option><option value="finalizado">Finalizado</option></select></div>
+        <div id="loading" class="loading hidden">Carregando...</div><div id="empty" class="empty hidden">Nenhum pré-cadastro encontrado.</div><div id="clientList" class="client-list"></div>
       </div>
     </section>
   </main>
-
-  <dialog id="detailDialog">
-    <div class="dialog-head">
-      <div><strong id="detailName">Cliente</strong><span id="detailProtocol"></span></div>
-      <button id="closeDialog" class="icon-btn">×</button>
-    </div>
-    <div id="detailBody" class="detail-body"></div>
-  </dialog>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="painel.js"></script>
+  <dialog id="detailDialog"><div class="dialog-head"><div><strong id="detailName">Cliente</strong><span id="detailProtocol"></span></div><button id="closeDialog" class="icon-btn">×</button></div><div id="detailBody" class="detail-body"></div></dialog>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="painel.js"></script>
 </body>
 </html>
