@@ -13,16 +13,17 @@ const steps=[
   {
     title:'Seus dados pessoais', sub:'Preencha suas informações com atenção.', progress:0,
     html:()=>`${fields.input('nome_completo','Nome completo','text','Digite seu nome completo')}
-      ${fields.input('data_nascimento','Data de nascimento','date')}
+      <div class="field"><label for="data_nascimento">Data de nascimento</label><input id="data_nascimento" name="data_nascimento" type="text" inputmode="numeric" maxlength="10" placeholder="DD/MM/AAAA" required></div>
       ${fields.select('estado_civil','Estado civil',['Solteiro(a)','Casado(a)','União estável','Divorciado(a)','Viúvo(a)'])}
       ${fields.input('cpf','CPF','text','Digite seu CPF')}
-      ${fields.input('whatsapp','Telefone/WhatsApp','tel','(99) 9 0000-0000')}`
+      ${fields.input('whatsapp','Telefone/WhatsApp 1','tel','(99) 9 0000-0000')}
+      ${fields.input('whatsapp_secundario','Telefone/WhatsApp 2','tel','(99) 9 0000-0000')}`
   },
   {
     title:'Endereço', sub:'Informe seu endereço atual.', progress:1,
     html:()=>`${fields.input('cep','CEP','text','Digite seu CEP')}
       ${fields.input('rua','Endereço','text','Digite seu endereço')}
-      <div class="field-row">${fields.input('numero','Número','text','Nº')}${fields.input('complemento','Complemento (opcional)','text','Apto, bloco, etc.',false)}</div>
+      <div class="field-row">${fields.input('numero','Número','text','Nº')}${fields.input('complemento','Complemento / Próximo de','text','Ex.: perto da praça, bloco, apto',false)}</div>
       ${fields.input('bairro','Bairro','text','Digite seu bairro')}
       ${fields.input('cidade','Cidade','text','Digite sua cidade')}
       ${fields.select('estado','Estado',['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'])}`
@@ -35,14 +36,7 @@ const steps=[
       <div class="helper"><span class="i">i</span><span>Essas informações são usadas apenas para análise de crédito.</span></div>`
   },
   {
-    title:'Referência pessoal', sub:'Informe uma pessoa de confiança.', progress:3,
-    html:()=>`${fields.input('referencia_nome','Nome completo','text','Digite o nome da referência')}
-      ${fields.input('referencia_telefone','Telefone','tel','(99) 9 0000-0000')}
-      ${fields.input('referencia_relacao','Relação/Parentesco','text','Ex.: mãe, irmão, amigo')}
-      <div class="helper"><span class="i">i</span><span>Sua referência será usada somente para auxiliar a análise do cadastro.</span></div>`
-  },
-  {
-    title:'Envio de documentos', sub:'Envie fotos ou PDF legíveis.', progress:null,
+    title:'Envio de documentos', sub:'Envie fotos ou PDF legíveis.', progress:3,
     html:()=>`<div class="doc-choice"><button type="button" data-doc="RG" class="${data.tipo_documento==='RG'?'active':''}">RG</button><button type="button" data-doc="CNH" class="${data.tipo_documento==='CNH'?'active':''}">CNH</button></div>
       <div class="upload-grid">
         ${uploadCard('documento_frente','📷',data.tipo_documento==='CNH'?'CNH':'RG - frente','Tirar foto ou escolher')}
@@ -84,9 +78,14 @@ function restoreValues(){
   const consent=document.getElementById('autorizado_analise'); if(consent) consent.checked=!!data.autorizado_analise;
 }
 
+function maskDate(v){const d=String(v||'').replace(/\D/g,'').slice(0,8);return d.replace(/^(\d{2})(\d)/,'$1/$2').replace(/^(\d{2}\/\d{2})(\d)/,'$1/$2')}
+function parseDateBR(v){const m=String(v||'').match(/^(\d{2})\/(\d{2})\/(\d{4})$/);if(!m)return null;const d=Number(m[1]),mo=Number(m[2]),y=Number(m[3]);const dt=new Date(y,mo-1,d);if(dt.getFullYear()!==y||dt.getMonth()!==mo-1||dt.getDate()!==d)return null;return `${String(y).padStart(4,'0')}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`}
+function ageFromISO(iso){if(!iso)return -1;const [y,m,d]=iso.split('-').map(Number),today=new Date();let age=today.getFullYear()-y;if(today.getMonth()+1<m||(today.getMonth()+1===m&&today.getDate()<d))age--;return age}
+
 function bindDynamic(){
   document.querySelectorAll('[data-doc]').forEach(btn=>btn.addEventListener('click',()=>{saveCurrent();data.tipo_documento=btn.dataset.doc;if(data.tipo_documento==='CNH')delete files.documento_verso;render()}));
   document.querySelectorAll('.upload-card input[type=file]').forEach(inp=>inp.addEventListener('change',()=>{const file=inp.files?.[0];if(!file)return;if(file.size>5*1024*1024){alert('Cada arquivo deve ter no máximo 5 MB.');inp.value='';return}files[inp.id]=file;render()}));
+  const nascimento=document.getElementById('data_nascimento');if(nascimento)nascimento.addEventListener('input',()=>{nascimento.value=maskDate(nascimento.value)});
 }
 
 function saveCurrent(){
@@ -102,16 +101,21 @@ function validateCurrent(){
   const controls=[...document.querySelectorAll('#stepContent input:not([type=file]),#stepContent select')];
   for(const e of controls){if(!e.checkValidity()){e.reportValidity();return false}}
   if(step===0){
+    const nascimento=parseDateBR(data.data_nascimento);if(!nascimento){alert('Digite a data de nascimento no formato DD/MM/AAAA.');return false}
+    if(ageFromISO(nascimento)<18){alert('O pré-cadastro é permitido somente para maiores de 18 anos.');return false}
     if((data.cpf||'').replace(/\D/g,'').length!==11){alert('Digite um CPF com 11 números.');return false}
-    if((data.whatsapp||'').replace(/\D/g,'').length<10){alert('Digite um WhatsApp válido.');return false}
+    const tel1=(data.whatsapp||'').replace(/\D/g,''),tel2=(data.whatsapp_secundario||'').replace(/\D/g,'');
+    if(tel1.length<10){alert('Digite o primeiro telefone/WhatsApp válido.');return false}
+    if(tel2.length<10){alert('Digite o segundo telefone/WhatsApp válido.');return false}
+    if(tel1===tel2){alert('Informe dois telefones diferentes.');return false}
   }
-  if(step===4){
+  if(step===3){
     if(!files.documento_frente){alert(`Envie a foto da frente do ${data.tipo_documento}.`);return false}
     if(data.tipo_documento==='RG'&&!files.documento_verso){alert('Envie a foto do verso do RG.');return false}
     if(!files.comprovante_endereco){alert('Envie o comprovante de residência.');return false}
     if(!files.selfie){alert('Envie uma selfie.');return false}
   }
-  if(step===5&&!data.autorizado_analise){alert('Você precisa autorizar a análise para enviar o pré-cadastro.');return false}
+  if(step===4&&!data.autorizado_analise){alert('Você precisa autorizar a análise para enviar o pré-cadastro.');return false}
   return true;
 }
 
@@ -123,7 +127,7 @@ function fileToPayload(file){
 async function submit(){
   const btn=$('#nextBtn');btn.disabled=true;btn.textContent='ENVIANDO...';
   try{
-    const payload={...data,consentimento:true,autorizado_analise:true,arquivos:{
+    const payload={...data,data_nascimento:parseDateBR(data.data_nascimento),consentimento:true,autorizado_analise:true,arquivos:{
       documento_frente:await fileToPayload(files.documento_frente),
       documento_verso:await fileToPayload(files.documento_verso),
       comprovante_endereco:await fileToPayload(files.comprovante_endereco),
