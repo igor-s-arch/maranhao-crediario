@@ -1,19 +1,20 @@
 {
-  "id": "./painel.html",
+  "id": "/maranhao-crediario/painel.html",
   "name": "Painel Maranhão Calçados",
   "short_name": "Painel Maranhão",
   "description": "Painel interno do crediário Maranhão Calçados",
-  "start_url": "./painel.html",
-  "scope": "./",
+  "start_url": "/maranhao-crediario/painel.html",
+  "scope": "/maranhao-crediario/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
   "background_color": "#050505",
   "theme_color": "#050505",
   "icons": [
     {
-      "src": "WhatsApp%20Image%202026-09-12%20at%2015.53.43.jpeg",
+      "src": "logo.svg",
       "sizes": "any",
-      "type": "image/jpeg",
-      "purpose": "any maskable"
+      "type": "image/svg+xml",
+      "purpose": "any"
     }
   ]
 }
