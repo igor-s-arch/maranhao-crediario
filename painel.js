@@ -1,143 +1,23 @@
 const SUPABASE_URL='https://mcebteebdfnrksnrokvt.supabase.co';
 const SUPABASE_KEY='sb_publishable_7nRIYvEhkDYvw_1oEOVtDw_2xCXnDaT';
-const { createClient }=supabase;
-const db=createClient(SUPABASE_URL,SUPABASE_KEY);
-const $=s=>document.querySelector(s);
-let clients=[];
-let current=null;
-
-async function boot(){
-  db.auth.onAuthStateChange(async(event,session)=>{
-    if(event==='PASSWORD_RECOVERY'&&session){
-      const nova=prompt('Digite sua nova senha (mínimo 6 caracteres):');
-      if(nova&&nova.length>=6){const {error}=await db.auth.updateUser({password:nova});alert(error?'Não foi possível alterar a senha.':'Senha alterada com sucesso.');}
-    }
-  });
-  const {data:{session}}=await db.auth.getSession();
-  if(session) await enterPanel(); else showLogin();
-}
-function showLogin(){ $('#loginScreen').classList.remove('hidden'); $('#panelScreen').classList.add('hidden'); }
-function showLoginBox(){ $('#signupBox').classList.add('hidden'); $('#loginBox').classList.remove('hidden'); $('#signupMsg').classList.add('hidden'); }
-function showSignupBox(){ $('#loginBox').classList.add('hidden'); $('#signupBox').classList.remove('hidden'); }
-
-async function ensureAccessRequest(user){
-  const nome=user.user_metadata?.nome||user.email?.split('@')[0]||'Funcionário';
-  const {data:existing}=await db.from('loja_usuarios').select('user_id').eq('user_id',user.id).maybeSingle();
-  if(existing)return;
-  await db.from('loja_usuarios').insert({user_id:user.id,nome,ativo:false});
-}
-
-async function enterPanel(){
-  const {data:{user}}=await db.auth.getUser();
-  if(!user){showLogin();return}
-  await ensureAccessRequest(user);
-  const {data:access,error}=await db.from('loja_usuarios').select('nome,ativo').eq('user_id',user.id).maybeSingle();
-  if(error||!access?.ativo){ await db.auth.signOut(); $('#loginError').textContent='Conta criada, mas o acesso ainda não foi liberado pela loja.'; $('#loginError').classList.remove('hidden'); showLogin(); return; }
-  $('#staffName').textContent=access.nome||user.email||'Funcionário';
-  $('#loginScreen').classList.add('hidden'); $('#panelScreen').classList.remove('hidden');
-  await loadClients();
-}
-
-$('#showSignup').onclick=showSignupBox;
-$('#backToLogin').onclick=showLoginBox;
-
-$('#signupForm').addEventListener('submit',async e=>{
-  e.preventDefault();
-  const nome=$('#signupName').value.trim(), email=$('#signupEmail').value.trim(), senha=$('#signupPassword').value, senha2=$('#signupPassword2').value;
-  const msg=$('#signupMsg'); msg.classList.add('hidden');
-  if(senha!==senha2){msg.textContent='As senhas não são iguais.';msg.className='notice error';return}
-  const btn=$('#signupBtn');btn.disabled=true;btn.textContent='CRIANDO...';
-  const {data,error}=await db.auth.signUp({email,password:senha,options:{data:{nome}}});
-  btn.disabled=false;btn.textContent='CRIAR CONTA';
-  if(error){msg.textContent='Não foi possível criar a conta: '+error.message;msg.className='notice error';return}
-  if(data.session&&data.user){await ensureAccessRequest(data.user);await db.auth.signOut();}
-  msg.textContent=data.session?'Conta criada. Agora aguarde a liberação da loja.':'Conta criada. Confira seu e-mail para confirmar o cadastro e depois aguarde a liberação da loja.';
-  msg.className='notice success-note';
-});
-
-$('#forgotPassword').onclick=async()=>{
-  const email=$('#email').value.trim();
-  if(!email){$('#loginError').textContent='Digite seu e-mail primeiro.';$('#loginError').classList.remove('hidden');return}
-  const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:location.href.split('#')[0]});
-  $('#loginError').textContent=error?'Não foi possível enviar a recuperação.':'Enviamos um link de recuperação para seu e-mail.';
-  $('#loginError').classList.remove('hidden');
-};
-
-$('#loginForm').addEventListener('submit',async e=>{
-  e.preventDefault(); const btn=$('#loginBtn'); btn.disabled=true; btn.textContent='ENTRANDO...'; $('#loginError').classList.add('hidden');
-  const {error}=await db.auth.signInWithPassword({email:$('#email').value.trim(),password:$('#password').value});
-  btn.disabled=false; btn.textContent='ENTRAR';
-  if(error){$('#loginError').textContent='E-mail ou senha inválidos.';$('#loginError').classList.remove('hidden');return}
-  await enterPanel();
-});
-$('#logoutBtn').onclick=async()=>{await db.auth.signOut();location.reload()};
-$('#refreshBtn').onclick=loadClients;
-$('#searchInput').addEventListener('input',renderClients);
-$('#statusFilter').addEventListener('change',renderClients);
-$('#closeDialog').onclick=()=>$('#detailDialog').close();
-
-async function loadClients(){
-  $('#loading').classList.remove('hidden'); $('#clientList').innerHTML=''; $('#empty').classList.add('hidden');
-  const {data,error}=await db.from('pre_cadastros').select('*').order('created_at',{ascending:false});
-  $('#loading').classList.add('hidden');
-  if(error){alert('Não foi possível carregar os pré-cadastros.');return}
-  clients=data||[]; renderStats(); renderClients();
-}
-function renderStats(){
-  const count=s=>clients.filter(c=>c.status===s).length;
-  $('#stats').innerHTML=`<div class="stat"><span>Total</span><b>${clients.length}</b></div><div class="stat"><span>Novos</span><b>${count('novo')}</b></div><div class="stat"><span>Em análise</span><b>${count('em_analise')}</b></div><div class="stat"><span>Aprovados</span><b>${count('aprovado')}</b></div>`;
-}
-function renderClients(){
-  const q=$('#searchInput').value.trim().toLowerCase().replace(/\D/g,'');
-  const raw=$('#searchInput').value.trim().toLowerCase();
-  const sf=$('#statusFilter').value;
-  const filtered=clients.filter(c=>{
-    const hay=[c.nome_completo,c.protocolo,c.whatsapp,c.cpf].map(v=>String(v||'').toLowerCase());
-    const textOk=!raw||hay.some(v=>v.includes(raw))||(q&&hay.some(v=>v.replace(/\D/g,'').includes(q)));
-    return textOk&&(!sf||c.status===sf);
-  });
-  $('#empty').classList.toggle('hidden',filtered.length>0);
-  $('#clientList').innerHTML=filtered.map(c=>`<article class="client-card" data-id="${c.id}"><div><div class="client-name">${esc(c.nome_completo||'Sem nome')}</div><div class="client-meta">${esc(c.protocolo||'')} · ${fmtDate(c.created_at)}</div></div><div><div class="client-meta">CPF</div><strong>${esc(formatCPF(c.cpf))}</strong></div><div><span class="status status-${esc(c.status)}">${labelStatus(c.status)}</span></div><button class="open-btn">ABRIR</button></article>`).join('');
-  document.querySelectorAll('.client-card').forEach(el=>el.addEventListener('click',()=>openClient(el.dataset.id)));
-}
-
-async function openClient(id){
-  current=clients.find(c=>String(c.id)===String(id)); if(!current)return;
-  $('#detailName').textContent=current.nome_completo||'Cliente'; $('#detailProtocol').textContent=current.protocolo||'';
-  const docs=[['documento_frente_url','Documento frente'],['documento_verso_url','Documento verso'],['comprovante_endereco_url','Comprovante endereço'],['selfie_url','Selfie']].filter(([k])=>current[k]);
-  $('#detailBody').innerHTML=`<div class="detail-grid">
-    <section class="section"><h3>Dados pessoais</h3>${kv('CPF',formatCPF(current.cpf))}${kv('Nascimento',fmtDateOnly(current.data_nascimento))}${kv('WhatsApp',current.whatsapp)}${kv('Estado civil',current.estado_civil)}${kv('Profissão',current.profissao)}${kv('Renda',money(current.renda_mensal))}${kv('Empresa',current.empresa_trabalho)}</section>
-    <section class="section"><h3>Endereço</h3>${kv('CEP',current.cep)}${kv('Rua',current.rua)}${kv('Número',current.numero)}${kv('Complemento',current.complemento)}${kv('Bairro',current.bairro)}${kv('Cidade/UF',`${current.cidade||''}/${current.estado||''}`)}</section>
-    <section class="section"><h3>Referência</h3>${kv('Nome',current.referencia_nome)}${kv('Telefone',current.referencia_telefone)}${kv('Relação',current.referencia_relacao)}</section>
-    <section class="section"><h3>Cadastro</h3>${kv('Protocolo',current.protocolo)}${kv('Status',labelStatus(current.status))}${kv('Enviado em',fmtDate(current.created_at))}${kv('Responsável',current.responsavel)}</section>
-    <section class="section full"><h3>Documentos</h3><div class="docs">${docs.map(([k,l])=>`<button class="doc-btn" data-path="${esc(current[k])}">${l}</button>`).join('')||'Nenhum documento disponível.'}</div></section>
-    <section class="section full"><h3>Análise do crediário</h3><div class="analysis-grid"><label>Status<select id="editStatus"><option value="novo">Novo</option><option value="em_analise">Em análise</option><option value="pendente_documentos">Pendente documentos</option><option value="aprovado">Aprovado</option><option value="reprovado">Reprovado</option><option value="finalizado">Finalizado</option></select></label><label>Limite aprovado<input id="editLimit" type="number" min="0" step="0.01" placeholder="R$ 0,00"></label></div><label>Responsável<input id="editResponsible" placeholder="Nome do funcionário"></label><label>Observações<textarea id="editNotes" rows="4" placeholder="Observações da análise"></textarea></label><div class="analysis-actions"><button class="save-btn" id="saveAnalysis">SALVAR ANÁLISE</button><button class="approve-btn" id="approveAnalysis">APROVAR</button><button class="reject-btn" id="rejectAnalysis">REPROVAR</button></div></section>
-  </div>`;
-  $('#editStatus').value=current.status||'novo'; $('#editLimit').value=current.limite_aprovado??''; $('#editResponsible').value=current.responsavel||$('#staffName').textContent||''; $('#editNotes').value=current.observacoes||'';
-  document.querySelectorAll('.doc-btn').forEach(b=>b.onclick=()=>openDocument(b.dataset.path));
-  $('#saveAnalysis').onclick=()=>saveAnalysis(); $('#approveAnalysis').onclick=()=>saveAnalysis('aprovado'); $('#rejectAnalysis').onclick=()=>saveAnalysis('reprovado');
-  $('#detailDialog').showModal();
-}
-
-async function openDocument(path){
-  const {data,error}=await db.storage.from('pre_cadastros_documentos').createSignedUrl(path,300);
-  if(error||!data?.signedUrl){alert('Não foi possível abrir este documento.');return}
-  window.open(data.signedUrl,'_blank','noopener');
-}
-async function saveAnalysis(forceStatus){
-  const status=forceStatus||$('#editStatus').value; const limit=$('#editLimit').value===''?null:Number($('#editLimit').value);
-  if(status==='aprovado'&&(!limit||limit<=0)){alert('Informe um limite aprovado maior que zero.');return}
-  const payload={status,limite_aprovado:status==='aprovado'?limit:null,responsavel:$('#editResponsible').value.trim()||null,observacoes:$('#editNotes').value.trim()||null};
-  const {error}=await db.from('pre_cadastros').update(payload).eq('id',current.id);
-  if(error){alert('Não foi possível salvar a análise.');return}
-  alert('Análise salva com sucesso.'); $('#detailDialog').close(); await loadClients();
-}
-
-function kv(a,b){return `<div class="kv"><span>${esc(a)}</span><span>${esc(b||'—')}</span></div>`}
-function esc(v){return String(v??'').replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m]))}
-function fmtDate(v){if(!v)return'—';return new Date(v).toLocaleString('pt-BR')}
-function fmtDateOnly(v){if(!v)return'—';const [y,m,d]=String(v).split('-');return d&&m&&y?`${d}/${m}/${y}`:v}
-function money(v){if(v===null||v===undefined||v==='')return'—';return Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}
-function formatCPF(v){const d=String(v||'').replace(/\D/g,'');return d.length===11?d.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/,'$1.$2.$3-$4'):v||'—'}
-function labelStatus(s){return({novo:'Novo',em_analise:'Em análise',pendente_documentos:'Pendente documentos',aprovado:'Aprovado',reprovado:'Reprovado',finalizado:'Finalizado'})[s]||s||'—'}
+const {createClient}=supabase,db=createClient(SUPABASE_URL,SUPABASE_KEY),$=s=>document.querySelector(s);
+let clients=[],current=null,profile=null;
+async function boot(){const {data:{session}}=await db.auth.getSession();session?enterPanel():showLogin()}
+function showLogin(){$('#loginScreen').classList.remove('hidden');$('#panelScreen').classList.add('hidden')}
+$('#loginForm').addEventListener('submit',async e=>{e.preventDefault();const btn=$('#loginBtn'),u=$('#usuario').value.trim().toLowerCase(),p=$('#password').value;btn.disabled=true;btn.textContent='ENTRANDO...';$('#loginError').classList.add('hidden');const email=u.includes('@')?u:`${u}@funcionario.maranhao.local`;const {error}=await db.auth.signInWithPassword({email,password:p});btn.disabled=false;btn.textContent='ENTRAR';if(error){$('#loginError').textContent='Usuário ou senha inválidos.';$('#loginError').classList.remove('hidden');return}await enterPanel()});
+async function enterPanel(){const {data:{user}}=await db.auth.getUser();if(!user)return showLogin();const {data,error}=await db.from('loja_usuarios').select('nome,ativo,perfil,usuario').eq('user_id',user.id).maybeSingle();if(error||!data?.ativo){await db.auth.signOut();$('#loginError').textContent='Este usuário não está liberado para acessar o painel.';$('#loginError').classList.remove('hidden');return showLogin()}profile=data;$('#staffName').textContent=`${data.nome||'Funcionário'}${data.perfil==='mestre'?' · Mestre':''}`;$('#employeesBtn').classList.toggle('hidden',data.perfil!=='mestre');$('#loginScreen').classList.add('hidden');$('#panelScreen').classList.remove('hidden');await loadClients()}
+$('#logoutBtn').onclick=async()=>{await db.auth.signOut();location.reload()};$('#refreshBtn').onclick=loadClients;$('#searchInput').oninput=renderClients;$('#statusFilter').onchange=renderClients;$('#closeDialog').onclick=()=>$('#detailDialog').close();
+$('#employeesBtn').onclick=async()=>{$('#clientsArea').classList.add('hidden');$('#employeesArea').classList.remove('hidden');await loadEmployees()};$('#backClients').onclick=()=>{$('#employeesArea').classList.add('hidden');$('#clientsArea').classList.remove('hidden')};
+async function masterRequest(method='GET',body){const {data:{session}}=await db.auth.getSession();const r=await fetch(`${SUPABASE_URL}/functions/v1/gerenciar-funcionarios`,{method,headers:{Authorization:`Bearer ${session?.access_token||''}`,'Content-Type':'application/json',apikey:SUPABASE_KEY},body:body?JSON.stringify(body):undefined});const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.erro||'Não foi possível concluir.');return j}
+async function loadEmployees(){try{const j=await masterRequest();$('#employeeList').innerHTML=(j.funcionarios||[]).map(f=>`<article class="client-card"><div><div class="client-name">${esc(f.nome)}</div><div class="client-meta">Usuário: ${esc(f.usuario||f.perfil==='mestre'?'mestre':'—')}</div></div><div><span class="status ${f.ativo?'status-aprovado':'status-reprovado'}">${f.ativo?'Liberado':'Bloqueado'}</span></div><div>${f.perfil==='mestre'?'<strong>👑 Mestre</strong>':'Funcionário'}</div>${f.perfil==='mestre'?'<span></span>':`<button class="open-btn employee-action" data-id="${f.user_id}" data-active="${f.ativo}">${f.ativo?'BLOQUEAR':'LIBERAR'}</button><button class="open-btn password-action" data-id="${f.user_id}">NOVA SENHA</button>`}</article>`).join('');document.querySelectorAll('.employee-action').forEach(b=>b.onclick=()=>setEmployeeStatus(b.dataset.id,b.dataset.active!=='true'));document.querySelectorAll('.password-action').forEach(b=>b.onclick=()=>resetEmployeePassword(b.dataset.id))}catch(e){alert(e.message)}}
+$('#createEmployee').onclick=async()=>{const nome=$('#newEmployeeName').value.trim(),usuario=$('#newEmployeeUser').value.trim(),senha=$('#newEmployeePass').value,msg=$('#employeeMsg');try{await masterRequest('POST',{acao:'criar',nome,usuario,senha});msg.textContent='Funcionário criado e liberado com sucesso.';msg.className='notice success-note';$('#newEmployeeName').value=$('#newEmployeeUser').value=$('#newEmployeePass').value='';await loadEmployees()}catch(e){msg.textContent=e.message;msg.className='error'}};
+async function setEmployeeStatus(id,ativo){try{await masterRequest('POST',{acao:'status',user_id:id,ativo});await loadEmployees()}catch(e){alert(e.message)}}
+async function resetEmployeePassword(id){const senha=prompt('Digite a nova senha do funcionário (mínimo 6 caracteres):');if(!senha)return;try{await masterRequest('POST',{acao:'senha',user_id:id,senha});alert('Senha alterada com sucesso.')}catch(e){alert(e.message)}}
+async function loadClients(){$('#loading').classList.remove('hidden');$('#clientList').innerHTML='';const {data,error}=await db.from('pre_cadastros').select('*').order('created_at',{ascending:false});$('#loading').classList.add('hidden');if(error)return alert('Não foi possível carregar os pré-cadastros.');clients=data||[];renderStats();renderClients()}
+function renderStats(){const c=s=>clients.filter(x=>x.status===s).length;$('#stats').innerHTML=`<div class="stat"><span>Total</span><b>${clients.length}</b></div><div class="stat"><span>Novos</span><b>${c('novo')}</b></div><div class="stat"><span>Em análise</span><b>${c('em_analise')}</b></div><div class="stat"><span>Aprovados</span><b>${c('aprovado')}</b></div>`}
+function renderClients(){const raw=$('#searchInput').value.trim().toLowerCase(),q=raw.replace(/\D/g,''),sf=$('#statusFilter').value,f=clients.filter(c=>{const h=[c.nome_completo,c.protocolo,c.whatsapp,c.cpf].map(v=>String(v||'').toLowerCase());return(!raw||h.some(v=>v.includes(raw))||(q&&h.some(v=>v.replace(/\D/g,'').includes(q))))&&(!sf||c.status===sf)});$('#empty').classList.toggle('hidden',f.length>0);$('#clientList').innerHTML=f.map(c=>`<article class="client-card" data-id="${c.id}"><div><div class="client-name">${esc(c.nome_completo||'Sem nome')}</div><div class="client-meta">${esc(c.protocolo||'')} · ${fmtDate(c.created_at)}</div></div><div><div class="client-meta">CPF</div><strong>${esc(formatCPF(c.cpf))}</strong></div><div><span class="status status-${esc(c.status)}">${labelStatus(c.status)}</span></div><button class="open-btn">ABRIR</button></article>`).join('');document.querySelectorAll('#clientList .client-card').forEach(el=>el.onclick=()=>openClient(el.dataset.id))}
+async function openClient(id){current=clients.find(c=>String(c.id)===String(id));if(!current)return;$('#detailName').textContent=current.nome_completo||'Cliente';$('#detailProtocol').textContent=current.protocolo||'';const docs=[['documento_frente_url','Documento frente'],['documento_verso_url','Documento verso'],['comprovante_endereco_url','Comprovante endereço'],['selfie_url','Selfie']].filter(([k])=>current[k]);$('#detailBody').innerHTML=`<div class="detail-grid"><section class="section"><h3>Dados pessoais</h3>${kv('CPF',formatCPF(current.cpf))}${kv('Nascimento',fmtDateOnly(current.data_nascimento))}${kv('WhatsApp',current.whatsapp)}${kv('Estado civil',current.estado_civil)}${kv('Profissão',current.profissao)}${kv('Renda',money(current.renda_mensal))}${kv('Empresa',current.empresa_trabalho)}</section><section class="section"><h3>Endereço</h3>${kv('CEP',current.cep)}${kv('Rua',current.rua)}${kv('Número',current.numero)}${kv('Complemento',current.complemento)}${kv('Bairro',current.bairro)}${kv('Cidade/UF',`${current.cidade||''}/${current.estado||''}`)}</section><section class="section"><h3>Referência</h3>${kv('Nome',current.referencia_nome)}${kv('Telefone',current.referencia_telefone)}${kv('Relação',current.referencia_relacao)}</section><section class="section"><h3>Cadastro</h3>${kv('Protocolo',current.protocolo)}${kv('Status',labelStatus(current.status))}${kv('Enviado em',fmtDate(current.created_at))}</section><section class="section full"><h3>Documentos</h3><div class="docs">${docs.map(([k,l])=>`<button class="doc-btn" data-path="${esc(current[k])}">${l}</button>`).join('')||'Nenhum documento disponível.'}</div></section><section class="section full"><h3>Análise do crediário</h3><div class="analysis-grid"><label>Status<select id="editStatus"><option value="novo">Novo</option><option value="em_analise">Em análise</option><option value="pendente_documentos">Pendente documentos</option><option value="aprovado">Aprovado</option><option value="reprovado">Reprovado</option><option value="finalizado">Finalizado</option></select></label><label>Limite aprovado<input id="editLimit" type="number" min="0" step="0.01"></label></div><label>Responsável<input id="editResponsible"></label><label>Observações<textarea id="editNotes" rows="4"></textarea></label><div class="analysis-actions"><button class="save-btn" id="saveAnalysis">SALVAR</button><button class="approve-btn" id="approveAnalysis">APROVAR</button><button class="reject-btn" id="rejectAnalysis">REPROVAR</button></div></section></div>`;$('#editStatus').value=current.status||'novo';$('#editLimit').value=current.limite_aprovado??'';$('#editResponsible').value=current.responsavel||profile?.nome||'';$('#editNotes').value=current.observacoes||'';document.querySelectorAll('.doc-btn').forEach(b=>b.onclick=()=>openDocument(b.dataset.path));$('#saveAnalysis').onclick=()=>saveAnalysis();$('#approveAnalysis').onclick=()=>saveAnalysis('aprovado');$('#rejectAnalysis').onclick=()=>saveAnalysis('reprovado');$('#detailDialog').showModal()}
+async function openDocument(path){const {data,error}=await db.storage.from('pre_cadastros_documentos').createSignedUrl(path,300);if(error||!data?.signedUrl)return alert('Não foi possível abrir este documento.');window.open(data.signedUrl,'_blank','noopener')}
+async function saveAnalysis(force){const status=force||$('#editStatus').value,limit=$('#editLimit').value===''?null:Number($('#editLimit').value);if(status==='aprovado'&&(!limit||limit<=0))return alert('Informe um limite aprovado maior que zero.');const {error}=await db.from('pre_cadastros').update({status,limite_aprovado:status==='aprovado'?limit:null,responsavel:$('#editResponsible').value.trim()||null,observacoes:$('#editNotes').value.trim()||null}).eq('id',current.id);if(error)return alert('Não foi possível salvar a análise.');alert('Análise salva com sucesso.');$('#detailDialog').close();await loadClients()}
+function kv(a,b){return `<div class="kv"><span>${esc(a)}</span><span>${esc(b||'—')}</span></div>`}function esc(v){return String(v??'').replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m]))}function fmtDate(v){return v?new Date(v).toLocaleString('pt-BR'):'—'}function fmtDateOnly(v){if(!v)return'—';const[y,m,d]=String(v).split('-');return`${d}/${m}/${y}`}function money(v){return v==null?'—':Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}function formatCPF(v){const d=String(v||'').replace(/\D/g,'');return d.length===11?d.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/,'$1.$2.$3-$4'):v||'—'}function labelStatus(s){return({novo:'Novo',em_analise:'Em análise',pendente_documentos:'Pendente documentos',aprovado:'Aprovado',reprovado:'Reprovado',finalizado:'Finalizado'})[s]||s||'—'}
 boot();
