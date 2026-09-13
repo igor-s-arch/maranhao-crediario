@@ -1,19 +1,25 @@
 {
-  "id": "./painel.html",
+  "id": "/maranhao-crediario/vem-ser-maranhao",
   "name": "Vem ser Maranhão",
   "short_name": "Vem ser Maranhão",
   "description": "Painel de crediário Maranhão Calçados",
-  "start_url": "./painel.html",
+  "start_url": "./painel.html?app=vem-ser-maranhao",
   "scope": "./",
   "display": "standalone",
   "background_color": "#050505",
   "theme_color": "#050505",
   "icons": [
     {
-      "src": "WhatsApp%20Image%202026-09-12%20at%2015.53.43.jpeg",
-      "sizes": "any",
+      "src": "./WhatsApp%20Image%202026-09-12%20at%2015.53.43.jpeg?v=2",
+      "sizes": "1254x1254",
       "type": "image/jpeg",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "./WhatsApp%20Image%202026-09-12%20at%2015.53.43.jpeg?v=2",
+      "sizes": "1254x1254",
+      "type": "image/jpeg",
+      "purpose": "maskable"
     }
   ]
 }
