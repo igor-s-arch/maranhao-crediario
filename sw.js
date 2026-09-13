@@ -1,5 +1,5 @@
-const CACHE='vem-ser-maranhao-v4';
-const APP=['./','./index.html','./styles.css','./app.js','./manifest.webmanifest','./ChatGPT%20Image%2012_09_2026,%2016_32_35.png','./WhatsApp%20Image%202026-09-10%20at%2016.10.08.jpeg','./WhatsApp%20Image%202026-09-12%20at%2015.53.43.jpeg'];
+const CACHE='vem-ser-maranhao-v5';
+const APP=['./','./index.html','./styles.css','./app.js','./manifest.webmanifest','./painel.html','./painel.webmanifest','./painel.css','./painel-visual-v2.css','./painel-mockup-v4.css','./painel.js','./painel-mockup-v4.js','./painel-extra.js','./painel-funcionarios.js','./painel-delete.js','./painel-cadastro-v2.js','./painel-documentos-v3.js','./ChatGPT%20Image%2012_09_2026,%2016_32_35.png','./WhatsApp%20Image%202026-09-10%20at%2016.10.08.jpeg','./WhatsApp%20Image%202026-09-12%20at%2015.53.43.jpeg'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(APP)));self.skipWaiting();});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));self.clients.claim();});
 self.addEventListener('fetch',event=>{if(event.request.method!=='GET')return;event.respondWith(fetch(event.request).then(response=>{const copy=response.clone();caches.open(CACHE).then(cache=>cache.put(event.request,copy));return response;}).catch(()=>caches.match(event.request)));});
