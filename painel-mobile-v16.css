@@ -1,0 +1,38 @@
+/* v16 — layout mobile do painel administrativo e funcionários */
+@media(max-width:800px){
+ .dashboard-shell{display:block!important}
+ .dashboard-main{padding-bottom:90px!important;min-width:0!important}
+ .sidebar{display:block!important;position:fixed!important;left:0!important;right:0!important;top:auto!important;bottom:0!important;height:76px!important;z-index:120!important;background:#101215!important;border-top:1px solid #353535!important;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))!important;box-shadow:0 -5px 25px #0002!important;overflow-x:auto!important;overflow-y:hidden!important}
+ .sidebar-brand,.sidebar-label,.sidebar-foot{display:none!important}
+ .sidebar-nav{display:flex!important;flex-direction:row!important;gap:3px!important;width:max-content!important;min-width:100%!important;align-items:stretch!important;justify-content:space-around!important}
+ .sidebar-nav .nav-btn,.sidebar-nav .mgmt-btn{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important;min-width:82px!important;min-height:61px!important;height:61px!important;padding:6px 9px!important;border:0!important;border-radius:9px!important;margin:0!important;font-size:10px!important;white-space:nowrap!important;text-align:center!important;line-height:1.15!important;color:#e5e7eb!important;background:transparent!important;box-shadow:none!important}
+ .sidebar-nav .nav-btn.active,.sidebar-nav .mgmt-btn.active{background:#ffcc00!important;color:#151515!important;border:0!important;border-radius:9px!important;margin:0!important;box-shadow:none!important}
+ .sidebar-nav .nav-icon,.sidebar-nav .mgmt-btn svg{height:19px!important;width:19px!important;flex:0 0 19px!important}
+ .sidebar-nav .mgmt-btn span{font-size:10px!important}
+ .topbar{background:#fff!important;border-bottom:1px solid #e7eaf0!important;box-shadow:none!important;display:flex!important;align-items:center!important;gap:8px!important;padding:9px 12px!important;min-height:66px!important}
+ .topbar .mobile-brand{display:block!important;max-width:120px!important;width:120px!important;height:42px!important;object-fit:contain!important}
+ .topbar-title{display:none!important}
+ .top-actions{margin-left:auto!important;display:flex!important;flex-direction:row!important;gap:7px!important;align-items:center!important}
+ .top-actions #staffName{display:none!important}
+ .top-actions .ghost{padding:8px 10px!important;font-size:11px!important}
+ .panel-wrap{padding:18px 12px 115px!important}
+ .heading-row{gap:12px!important;align-items:flex-start!important}
+ .heading-row h1,.mgmt-heading h1{font-size:23px!important}
+ .stats,.mgmt-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}
+ .stat,.mgmt-kpi{padding:13px!important;min-height:94px!important}
+ .stat b,.mgmt-kpi strong{font-size:24px!important}
+ .filters{padding:12px!important}
+ .client-list{overflow:visible!important;background:transparent!important;border:0!important;box-shadow:none!important}
+ .client-card.client-row{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;background:#fff!important;border:1px solid #e7ebf0!important;border-left:3px solid #ffca05!important;border-radius:12px!important;padding:14px!important;margin-bottom:10px!important;box-shadow:0 2px 10px #10203909!important}
+ .client-card.client-row .client-person{grid-column:1/-1!important}
+ .client-card.client-row .client-actions{grid-column:1/-1!important}
+ .mgmt-card{padding:16px!important}
+ .mgmt-table{min-width:550px!important}
+ #detailDialog{max-width:calc(100vw - 16px)!important;max-height:94dvh!important}
+}
+@media(max-width:380px){
+ .sidebar-nav .nav-btn,.sidebar-nav .mgmt-btn{min-width:77px!important;padding:5px 6px!important}
+ .topbar .mobile-brand{max-width:105px!important}
+ .stats,.mgmt-grid{gap:7px!important}
+ .mgmt-kpi strong{font-size:21px!important}
+}
