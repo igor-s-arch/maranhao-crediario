@@ -82,40 +82,6 @@
     if(footer)footer.textContent='Mostrando '+visible+' de '+clients.length+' pré-cadastros';
   };
   filter.addEventListener('change',()=>renderClients());
-  const previousOpen=openClient;
-  openClient=async function(id){
-    await previousOpen(id);
-    if(!current)return;
-    const area=document.querySelector('#detailBody .analysis-grid');
-    if(!area)return;
-    const wrapper=document.createElement('label');
-    wrapper.textContent='Situação da compra';
-    wrapper.innerHTML='Situação da compra <select id="editPurchase"><option value="false">Não comprou</option><option value="true">Comprou</option></select>';
-    area.appendChild(wrapper);
-    const input=wrapper.querySelector('select');
-    input.value=current.comprou===true?'true':'false';
-    if(!hasField(current)){
-      input.disabled=true;
-      const note=document.createElement('small');
-      note.textContent='Para ativar, é necessário criar a coluna comprou no Supabase.';
-      wrapper.appendChild(note);
-    }
-    const save=async()=>{
-      if(!hasField(current)){alert('O banco ainda não tem o campo comprou. Execute a atualização SQL antes de salvar.');return}
-      const value=input.value==='true';
-      const {error}=await db.from('pre_cadastros').update({comprou:value}).eq('id',current.id);
-      if(error){alert('Não foi possível salvar a compra: '+error.message);return}
-      current.comprou=value;
-      const found=clients.find(c=>String(c.id)===String(current.id));
-      if(found)found.comprou=value;
-      renderClients();
-      alert('Situação da compra salva com sucesso!');
-    };
-    const btn=document.createElement('button');
-    btn.type='button';btn.className='save-btn';btn.textContent='SALVAR SITUAÇÃO DA COMPRA';
-    btn.addEventListener('click',save);
-    wrapper.after(btn);
-  };
   const previousLoad=loadClients;
   loadClients=async function(){await previousLoad();renderClients()};
 })();
