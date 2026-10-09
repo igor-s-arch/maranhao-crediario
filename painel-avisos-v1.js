@@ -4,7 +4,7 @@
  #notificationBell{position:relative;display:inline-flex;align-items:center;gap:7px;border:1px solid #e0e5ec;background:#f8fafc;color:#243248;border-radius:10px;padding:10px 13px;font-weight:800;font-size:12px;cursor:pointer}
  #notificationCount{display:none;background:#e92929;color:white;border-radius:999px;padding:2px 6px;font-size:10px}
  #notificationPanel{position:absolute;right:25px;top:69px;z-index:30;width:min(360px,calc(100vw - 30px));background:#fff;color:#233247;border:1px solid #e4e9f0;border-radius:14px;padding:17px;box-shadow:0 15px 50px #18253825}
- #notificationPanel h3{margin:0 0 10px;font-size:15px}
+ #notificationPanel[hidden]{display:none!important}\n #notificationPanel h3{margin:0 0 10px;font-size:15px}
  #notificationPanel p{font-size:12px;color:#68778a;line-height:1.5}
  #notificationPanel button{background:#ffca05;color:#141414;border:0;border-radius:9px;padding:10px;font-weight:800;cursor:pointer}
  `;document.head.appendChild(css);
@@ -18,10 +18,10 @@
  const getSeen=()=>{try{return localStorage.getItem(storageKey)}catch(e){return null}};
  const setSeen=v=>{try{localStorage.setItem(storageKey,v)}catch(e){}};
  function showCount(){count.textContent=unread>99?'99+':String(unread);count.style.display=unread?'inline':'none'}
- bell.addEventListener('click',()=>{panel.hidden=!panel.hidden;if(!panel.hidden){unread=0;showCount()}});
+ bell.addEventListener('click',()=>{panel.hidden=!panel.hidden;if(!panel.hidden){unread=0;showCount()}});document.addEventListener('click',e=>{if(!panel.hidden&&!panel.contains(e.target)&&!bell.contains(e.target))panel.hidden=true});
  document.getElementById('notificationEnable').addEventListener('click',async()=>{
    if(!('Notification'in window)){alert('Este navegador não oferece notificações. Os avisos no painel continuarão funcionando.');return}
-   try{const result=await Notification.requestPermission();document.getElementById('notificationMessage').textContent=result==='granted'?'Avisos ativados enquanto o painel estiver aberto.':'Permissão não concedida. Os avisos no painel continuam disponíveis.'}catch(e){alert('Não foi possível solicitar a permissão neste navegador.')}
+   try{const result=await Notification.requestPermission();document.getElementById('notificationMessage').textContent=result==='granted'?'Avisos ativados enquanto o painel estiver aberto.':'Permissão não concedida. Verifique as permissões do site no navegador; os avisos dentro do painel continuam disponíveis.';document.getElementById('notificationEnable').textContent=result==='granted'?'Avisos ativados ✓':'Tentar ativar avisos';if(result==='granted')document.getElementById('notificationEnable').disabled=true}catch(e){alert('Não foi possível solicitar a permissão neste navegador.')}
  });
  async function check(){
    if(checking||document.getElementById('panelScreen')?.classList.contains('hidden'))return;
