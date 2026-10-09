@@ -18,7 +18,6 @@
  document.querySelectorAll('.nav-icon').forEach(el=>{if(el.dataset.corp)return;el.dataset.corp='1';el.innerHTML=svg(el.parentElement?.id==='sideEmployees'?'users':'file')});
  document.querySelectorAll('.stat-icon').forEach(el=>{if(el.dataset.corp)return;el.dataset.corp='1';el.innerHTML=svg(el.closest('.stat-approved')?'check':el.closest('.stat-rejected')?'x':el.closest('.stat-analysis')?'clock':el.closest('.stat-new')?'file':'users')});
  document.querySelectorAll('.mgmt-btn').forEach(el=>{if(el.dataset.corp)return;el.dataset.corp='1';const t=el.textContent.replace(/^[^\p{L}]+/u,'').trim();el.innerHTML=svg(/Visão/i.test(t)?'chart':/Recuperar/i.test(t)?'heart':'file')+'<span>'+t+'</span>'});
- const bell=document.getElementById('notificationBell');if(bell&&!bell.dataset.corp){bell.dataset.corp='1';bell.innerHTML=svg('bell')+'<span style="font-size:12px">Avisos</span><span id="notificationCount" style="display:none"></span>'}
  document.querySelectorAll('.password-eye').forEach(el=>{if(el.dataset.corp)return;el.dataset.corp='1';el.innerHTML=svg('eye')});
  document.querySelectorAll('.password-clear').forEach(el=>{if(el.dataset.corp)return;el.dataset.corp='1';el.textContent='×';el.style.fontSize='18px'});
  document.querySelectorAll('.open-btn').forEach(el=>{if(el.dataset.corp)return;el.dataset.corp='1';el.textContent='Abrir cadastro'});
