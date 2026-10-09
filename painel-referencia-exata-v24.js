@@ -100,6 +100,14 @@ q('#ref24Install').onclick=()=>q('#installDesktopBtn')?.click();
 q('#ref24SettingsLogout').onclick=()=>q('#logoutBtn')?.click();
 
 let refQuery='';
+let ref24OpeningFilteredList=false;
+function resetOldListFilters(){
+ const sf=q('#statusFilter'),pf=q('#purchaseFilter'),search=q('#searchInput');
+ if(search)search.value='';
+ if(sf)sf.value='';
+ if(pf)pf.value='';
+ if(typeof renderClients==='function')renderClients();
+}
 function mark(active){nav.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b===active))}
 function hideReferencePages(){dashboard.classList.remove('active');settingsPage.classList.remove('active')}
 function hideOldPages(){clientsArea.classList.add('hidden');employeesArea?.classList.add('hidden');qa('.mgmt-page').forEach(p=>p.classList.remove('active'))}
@@ -189,9 +197,13 @@ function showHome(){
 }
 function openOldList(status,button,purchaseOnly){
  hideReferencePages();
+ ref24OpeningFilteredList=true;
  sideClients?.click();
- const sf=q('#statusFilter');if(sf){sf.value=status||'';sf.dispatchEvent(new Event('change',{bubbles:true}))}
- const pf=q('#purchaseFilter');if(pf&&purchaseOnly){pf.value='';pf.dispatchEvent(new Event('change',{bubbles:true}))}
+ ref24OpeningFilteredList=false;
+ const search=q('#searchInput');if(search)search.value='';
+ const sf=q('#statusFilter');if(sf)sf.value=status||'';
+ const pf=q('#purchaseFilter');if(pf)pf.value='';
+ if(typeof renderClients==='function')renderClients();
  mark(button||sideClients);document.body.classList.remove('ref24-menu-open');
 }
 function showSettings(){
@@ -199,7 +211,7 @@ function showSettings(){
 }
 
 overview?.addEventListener('click',showHome);
-sideClients?.addEventListener('click',()=>{hideReferencePages();mark(sideClients);document.body.classList.remove('ref24-menu-open')});
+sideClients?.addEventListener('click',()=>{hideReferencePages();if(!ref24OpeningFilteredList)resetOldListFilters();mark(sideClients);document.body.classList.remove('ref24-menu-open')});
 recovery?.addEventListener('click',()=>{hideReferencePages();mark(recovery);document.body.classList.remove('ref24-menu-open')});
 reports?.addEventListener('click',()=>{hideReferencePages();mark(reports);document.body.classList.remove('ref24-menu-open')});
 sideEmployees?.addEventListener('click',()=>{hideReferencePages();mark(sideEmployees);document.body.classList.remove('ref24-menu-open')});
