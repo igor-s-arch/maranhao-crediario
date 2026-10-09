@@ -115,6 +115,8 @@ function localDay(v){const d=v instanceof Date?v:new Date(v);if(Number.isNaN(+d)
 function money(v){return Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}
 function longDate(now){return now.toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'})+' - '+now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}
 function waLink(phone){let d=String(phone||'').replace(/\D/g,'');if(d.length===10||d.length===11)d='55'+d;return d?'https://wa.me/'+d:''}
+const ref24WhatsappSvg='<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3A13 13 0 0 0 5 23.1L3.6 29 9.7 27.4A13 13 0 1 0 16 3Zm0 23.7c-2 0-4-.6-5.7-1.6l-.4-.2-3.6.9.9-3.5-.2-.4A10.7 10.7 0 1 1 16 26.7Zm5.9-8c-.3-.2-1.9-.9-2.2-1-.3-.1-.5-.2-.8.2-.2.3-.9 1-.9 1.2-.2.2-.4.2-.7.1-2-.9-3.3-2-4.6-4-.3-.5.3-.5.9-1.7.1-.2.1-.4 0-.6l-.9-2.2c-.2-.5-.5-.5-.8-.5h-.7c-.2 0-.6.1-.9.4-.3.4-1.2 1.2-1.2 2.9s1.2 3.3 1.4 3.5c.2.2 2.4 3.7 5.9 5.1.8.4 1.5.6 2 .7.8.3 1.6.2 2.2.1.7-.1 1.9-.8 2.2-1.5.3-.8.3-1.4.2-1.5-.1-.2-.4-.3-.7-.5Z"/></svg>';
+async function ref24CopyPhone(value,button){const text=String(value||'').trim();if(!text)return;try{if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(text);else{const input=document.createElement('textarea');input.value=text;input.style.position='fixed';input.style.opacity='0';document.body.appendChild(input);input.select();document.execCommand('copy');input.remove()}if(button){const old=button.textContent;button.textContent='Copiado';button.classList.add('copied');setTimeout(()=>{button.textContent=old;button.classList.remove('copied')},1200)}}catch(e){alert('Não foi possível copiar o telefone.')}}
 
 async function hydrateAvatars(){
  const nodes=qa('.ref24-avatar[data-selfie]');
@@ -170,7 +172,7 @@ function render(){
    '<input class="ref24-check" type="checkbox" aria-label="Selecionar '+esc(name)+'">'+
    '<div class="ref24-person"><span class="ref24-avatar"'+(selfie?' data-selfie="'+esc(selfie)+'"':'')+'>'+esc(initials)+'</span><div><strong>'+esc(name)+'</strong><small>'+esc(cpf)+'</small></div></div>'+
    '<div class="ref24-cpf">'+esc(cpf)+'</div>'+
-   '<div class="ref24-wa-cell">'+(wa?'<a class="ref24-wa" href="'+esc(wa)+'" target="_blank" rel="noopener"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3A13 13 0 0 0 5 23.1L3.6 29 9.7 27.4A13 13 0 1 0 16 3Zm0 23.7c-2 0-4-.6-5.7-1.6l-.4-.2-3.6.9.9-3.5-.2-.4A10.7 10.7 0 1 1 16 26.7Zm5.9-8c-.3-.2-1.9-.9-2.2-1-.3-.1-.5-.2-.8.2-.2.3-.9 1-.9 1.2-.2.2-.4.2-.7.1-2-.9-3.3-2-4.6-4-.3-.5.3-.5.9-1.7.1-.2.1-.4 0-.6l-.9-2.2c-.2-.5-.5-.5-.8-.5h-.7c-.2 0-.6.1-.9.4-.3.4-1.2 1.2-1.2 2.9s1.2 3.3 1.4 3.5c.2.2 2.4 3.7 5.9 5.1.8.4 1.5.6 2 .7.8.3 1.6.2 2.2.1.7-.1 1.9-.8 2.2-1.5.3-.8.3-1.4.2-1.5-.1-.2-.4-.3-.7-.5Z"/></svg><span>'+esc(c.whatsapp||'—')+'</span></a>':'—')+'</div>'+
+   '<div class="ref24-wa-cell"><div class="phone-contact">'+(wa?'<a class="phone-wa-link" href="'+esc(wa)+'" target="_blank" rel="noopener" title="Abrir no WhatsApp">'+ref24WhatsappSvg+'</a>':'')+'<span class="phone-number-text" title="Selecione o número para copiar">'+esc(c.whatsapp||'—')+'</span>'+(c.whatsapp?'<button type="button" class="phone-copy-btn" data-copy-phone="'+esc(c.whatsapp)+'" title="Copiar telefone">⧉</button>':'')+'</div></div>'+
    '<div class="ref24-date"><span>'+esc(dateTxt)+'</span><small>'+esc(timeTxt)+'</small></div>'+
    '<div class="ref24-status-cell"><span class="ref24-pill '+esc(c.status)+'">'+esc(statusLabel)+'</span></div>'+
    '<div class="ref24-purchase-cell"><select class="ref24-purchase '+(c.comprou===true?'':'no')+'" data-purchase-id="'+esc(c.id)+'" aria-label="Situação da compra"><option value="false">Não comprou</option><option value="true">Comprou</option></select></div>'+
@@ -182,6 +184,7 @@ function render(){
  qa('#ref24Rows [data-open-id]').forEach(b=>b.onclick=()=>openClient(b.dataset.openId));
  qa('#ref24Rows [data-menu-open]').forEach(b=>b.onclick=()=>openClient(b.dataset.menuOpen));
  qa('#ref24Rows .ref24-more').forEach(b=>b.onclick=e=>{e.stopPropagation();const menu=b.nextElementSibling;qa('.ref24-row-menu').forEach(m=>{if(m!==menu)m.hidden=true});menu.hidden=!menu.hidden});
+ qa('#ref24Rows .phone-copy-btn').forEach(btn=>btn.onclick=e=>{e.preventDefault();e.stopPropagation();ref24CopyPhone(btn.dataset.copyPhone,btn)});
  qa('#ref24Rows .ref24-purchase').forEach(select=>select.addEventListener('change',async e=>{
   e.stopPropagation();const c=clients.find(x=>String(x.id)===String(select.dataset.purchaseId));if(!c)return;
   const old=c.comprou===true,next=select.value==='true';if(old===next)return;
