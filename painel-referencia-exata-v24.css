@@ -97,3 +97,123 @@ linear-gradient(155deg,#020304 0%,#07090b 64%,#15130c 100%)!important;border:0!i
  body.ref24-menu-open .sidebar-nav>button.active{background:#ffca05!important;color:#111!important;border-radius:9px!important;border-top:0!important}
 }
 @media(max-width:380px){.ref24-person strong{max-width:125px}.ref24-list-title p{display:none}.ref24-kpi{min-height:105px}.sidebar-nav>button.ref24-mobile-priority{font-size:8px!important}}
+
+
+/* v24.1 — correção de alinhamento dos botões e ações */
+#ref24SearchBtn{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:8px!important;
+  min-width:130px!important;
+  padding:0 18px!important;
+  overflow:hidden!important;
+}
+#ref24SearchBtn svg{
+  width:16px!important;
+  height:16px!important;
+  min-width:16px!important;
+  max-width:16px!important;
+  min-height:16px!important;
+  max-height:16px!important;
+  display:block!important;
+  flex:0 0 16px!important;
+  stroke:#111!important;
+  fill:none!important;
+  stroke-width:2!important;
+}
+#ref24New{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  white-space:nowrap!important;
+  min-width:132px!important;
+  height:40px!important;
+  margin-left:auto!important;
+  padding:0 16px!important;
+  line-height:1!important;
+}
+.ref24-actions{
+  min-width:116px!important;
+  justify-content:flex-end!important;
+  gap:7px!important;
+}
+.ref24-open{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:5px!important;
+  min-width:72px!important;
+  width:auto!important;
+  height:33px!important;
+  padding:0 11px!important;
+  overflow:hidden!important;
+  white-space:nowrap!important;
+  line-height:1!important;
+}
+.ref24-open svg{
+  width:13px!important;
+  height:13px!important;
+  min-width:13px!important;
+  max-width:13px!important;
+  min-height:13px!important;
+  max-height:13px!important;
+  display:block!important;
+  flex:0 0 13px!important;
+  stroke:#fff!important;
+  fill:none!important;
+  stroke-width:1.9!important;
+}
+.ref24-more{
+  flex:0 0 32px!important;
+  width:32px!important;
+  min-width:32px!important;
+  max-width:32px!important;
+  height:33px!important;
+  min-height:33px!important;
+  padding:0!important;
+  line-height:1!important;
+}
+.ref24-row-menu{right:0!important;top:39px!important}
+.ref24-list-title{min-height:72px!important}
+.ref24-list-title>div:nth-child(2){min-width:0!important}
+.ref24-table-head,.ref24-row{
+  grid-template-columns:26px minmax(180px,1.7fr) minmax(110px,.9fr) minmax(125px,1fr) minmax(85px,.78fr) minmax(84px,.75fr) minmax(112px,.9fr) 116px!important;
+}
+@media(max-width:1050px) and (min-width:801px){
+  .ref24-table-head,.ref24-row{
+    grid-template-columns:22px minmax(165px,1.55fr) minmax(100px,.85fr) minmax(115px,1fr) minmax(78px,.72fr) minmax(80px,.72fr) minmax(104px,.86fr) 112px!important;
+  }
+  .ref24-open{min-width:68px!important;padding:0 9px!important}
+  .ref24-actions{min-width:112px!important}
+}
+@media(max-width:800px){
+  #ref24SearchBtn{display:none!important}
+  #ref24New{
+    min-width:auto!important;
+    width:auto!important;
+    height:34px!important;
+    min-height:34px!important;
+    padding:0 11px!important;
+    margin-left:auto!important;
+    font-size:9px!important;
+  }
+  .ref24-row{
+    grid-template-columns:18px minmax(0,1fr) auto!important;
+  }
+  .ref24-actions{
+    min-width:0!important;
+    width:auto!important;
+    gap:5px!important;
+  }
+  .ref24-open{
+    min-width:62px!important;
+    height:31px!important;
+    padding:0 8px!important;
+    font-size:9px!important;
+  }
+  .ref24-open svg{
+    width:12px!important;height:12px!important;min-width:12px!important;max-width:12px!important;min-height:12px!important;max-height:12px!important;flex-basis:12px!important;
+  }
+  .ref24-more{width:30px!important;min-width:30px!important;max-width:30px!important;height:31px!important;min-height:31px!important;flex-basis:30px!important}
+}
