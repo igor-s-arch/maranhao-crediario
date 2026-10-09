@@ -56,7 +56,7 @@ const settings=makeNav('ref24SettingsNav','Configurações','gear',()=>showSetti
 
 const order=[overview,sideClients,approved,rejected,recovery,purchases,reports,sideEmployees,notifications,settings].filter(Boolean);
 order.forEach(b=>nav.appendChild(b));
-[overview,sideClients,recovery,reports,sideEmployees].filter(Boolean).forEach(b=>b.classList.add('ref24-mobile-priority'));
+[overview,sideClients,approved,rejected,purchases].filter(Boolean).forEach(b=>b.classList.add('ref24-mobile-priority'));
 
 const foot=q('.sidebar-foot');
 if(foot)foot.innerHTML='<div class="ref24-foot-brand"><span class="ref24-foot-store">'+svg('store')+'</span><div><strong>Maranhão Calçados</strong><small>AS LOJAS QUE TE VENDE FIADO!</small></div></div><div class="ref24-foot-bottom"><span>Sistema de crediário<br>Vem ser Maranhão</span><span class="ref24-version">v24</span></div>';
