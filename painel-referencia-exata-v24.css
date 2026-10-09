@@ -463,3 +463,67 @@ linear-gradient(155deg,#020304 0%,#07090b 64%,#15130c 100%)!important;border:0!i
   .ref24-person strong{max-width:130px!important}
   #ref24New{min-width:100px!important;padding:0 8px!important}
 }
+
+
+/* v24.4 — barra lateral fixa, independente da rolagem do conteúdo */
+@media(min-width:801px){
+  .sidebar{
+    position:sticky!important;
+    top:0!important;
+    align-self:start!important;
+    height:100vh!important;
+    min-height:100vh!important;
+    max-height:100vh!important;
+    overflow:hidden!important;
+  }
+  .sidebar-nav{
+    flex:1 1 auto!important;
+    min-height:0!important;
+    overflow-y:auto!important;
+    overscroll-behavior:contain!important;
+    scrollbar-width:none!important;
+  }
+  .sidebar-nav::-webkit-scrollbar{display:none!important}
+  .sidebar-foot{flex:0 0 auto!important}
+}
+@media(max-width:800px){
+  body.ref24-menu-open{
+    overflow:hidden!important;
+    height:100dvh!important;
+    max-height:100dvh!important;
+    overscroll-behavior:none!important;
+  }
+  body.ref24-menu-open .sidebar{
+    position:fixed!important;
+    inset:0 auto 0 0!important;
+    width:min(282px,84vw)!important;
+    height:100dvh!important;
+    min-height:100dvh!important;
+    max-height:100dvh!important;
+    display:flex!important;
+    flex-direction:column!important;
+    overflow:hidden!important;
+    overscroll-behavior:contain!important;
+    z-index:500!important;
+  }
+  body.ref24-menu-open .sidebar-nav{
+    display:flex!important;
+    flex-direction:column!important;
+    flex:1 1 auto!important;
+    min-height:0!important;
+    height:auto!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    overscroll-behavior:contain!important;
+    scrollbar-width:none!important;
+  }
+  body.ref24-menu-open .sidebar-nav::-webkit-scrollbar{display:none!important}
+  body.ref24-menu-open .sidebar-brand{
+    flex:0 0 auto!important;
+  }
+  body.ref24-menu-open .sidebar-foot{
+    display:block!important;
+    flex:0 0 auto!important;
+    margin-top:auto!important;
+  }
+}
