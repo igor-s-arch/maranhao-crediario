@@ -11,6 +11,10 @@
     .purchase-pending{background:#f2f4f7;color:#475467}
     .purchase-control{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
     .purchase-control select{max-width:230px;padding:9px;border:1px solid #d0d5dd;border-radius:8px}
+    .purchase-inline{width:100%;max-width:135px;border:1px solid #d0d5dd;border-radius:9px;padding:7px 4px;font-size:11px;font-weight:800;cursor:pointer}
+    .purchase-inline.purchase-yes{background:#dcfae6;color:#067647}
+    .purchase-inline.purchase-no{background:#fee4e2;color:#b42318}
+    .purchase-inline:disabled{opacity:.6;cursor:wait}
     @media(max-width:1050px){#clientList.purchase-enabled .client-card.client-row{grid-template-columns:1fr 1fr}.purchase-cell .mobile-label{display:block}}
     @media(max-width:800px){#clientList.purchase-enabled .client-card.client-row{grid-template-columns:1fr}}
   `;
@@ -35,7 +39,34 @@
       const c=clients.find(x=>String(x.id)===card.dataset.id);
       if(!c)return;
       const cell=document.createElement('div');cell.className='cell purchase-cell';
-      cell.innerHTML='<span class="mobile-label">Compra</span>'+pill(c);
+      cell.innerHTML='<span class="mobile-label">Compra</span>';
+      if(hasField(c)){
+        const select=document.createElement('select');
+        select.className='purchase-inline '+(c.comprou?'purchase-yes':'purchase-no');
+        select.setAttribute('aria-label','Situação da compra de '+(c.nome_completo||'cliente'));
+        select.innerHTML='<option value="false">Não comprou</option><option value="true">Comprou</option>';
+        select.value=c.comprou===true?'true':'false';
+        select.addEventListener('click',e=>e.stopPropagation());
+        select.addEventListener('pointerdown',e=>e.stopPropagation());
+        select.addEventListener('change',async e=>{
+          e.stopPropagation();
+          const oldValue=c.comprou===true;
+          const newValue=select.value==='true';
+          if(oldValue===newValue)return;
+          select.disabled=true;
+          const {error}=await db.from('pre_cadastros').update({comprou:newValue}).eq('id',c.id).select('id,comprou').single();
+          if(error){
+            select.value=String(oldValue);
+            select.disabled=false;
+            alert('Não foi possível salvar a situação da compra: '+error.message);
+            return;
+          }
+          c.comprou=newValue;
+          if(current&&String(current.id)===String(c.id))current.comprou=newValue;
+          renderClients();
+        });
+        cell.appendChild(select);
+      }else{cell.innerHTML+=pill(c)}
       card.insertBefore(cell,card.querySelector('.client-actions'));
     });
     const choice=filter.value;
