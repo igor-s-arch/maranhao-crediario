@@ -217,3 +217,72 @@ linear-gradient(155deg,#020304 0%,#07090b 64%,#15130c 100%)!important;border:0!i
   }
   .ref24-more{width:30px!important;min-width:30px!important;max-width:30px!important;height:31px!important;min-height:31px!important;flex-basis:30px!important}
 }
+
+
+/* v24.2 — WhatsApp separado do telefone: abrir, selecionar e copiar */
+.phone-contact{
+  display:flex!important;
+  align-items:center!important;
+  gap:7px!important;
+  min-width:0!important;
+}
+.phone-wa-link{
+  display:inline-grid!important;
+  place-items:center!important;
+  width:24px!important;
+  height:24px!important;
+  min-width:24px!important;
+  border-radius:7px!important;
+  background:#eafaf1!important;
+  text-decoration:none!important;
+  cursor:pointer!important;
+}
+.phone-wa-link svg{
+  width:16px!important;
+  height:16px!important;
+  display:block!important;
+  fill:#16a85b!important;
+}
+.phone-number-text{
+  display:inline-block!important;
+  color:#52647c!important;
+  font-size:10px!important;
+  line-height:1.2!important;
+  white-space:nowrap!important;
+  user-select:text!important;
+  -webkit-user-select:text!important;
+  cursor:text!important;
+}
+.phone-copy-btn{
+  display:inline-grid!important;
+  place-items:center!important;
+  width:25px!important;
+  height:25px!important;
+  min-width:25px!important;
+  padding:0!important;
+  border:1px solid #dce4ed!important;
+  border-radius:7px!important;
+  background:#fff!important;
+  color:#53647b!important;
+  cursor:pointer!important;
+  font-size:11px!important;
+  font-weight:800!important;
+  line-height:1!important;
+}
+.phone-copy-btn:hover{background:#f4f7fa!important}
+.phone-copy-btn.copied{
+  width:auto!important;
+  min-width:48px!important;
+  padding:0 7px!important;
+  background:#e6f8ee!important;
+  border-color:#bde8cf!important;
+  color:#087943!important;
+}
+.whatsapp-cell .mobile-label{margin-right:2px}
+@media(max-width:800px){
+  .phone-contact{gap:5px!important}
+  .phone-wa-link{width:22px!important;height:22px!important;min-width:22px!important}
+  .phone-wa-link svg{width:15px!important;height:15px!important}
+  .phone-number-text{font-size:9px!important}
+  .phone-copy-btn{width:23px!important;height:23px!important;min-width:23px!important}
+}
