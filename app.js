@@ -16,6 +16,7 @@ const steps=[
       <div class="field"><label for="data_nascimento">Data de nascimento</label><input id="data_nascimento" name="data_nascimento" type="text" inputmode="numeric" maxlength="10" placeholder="DD/MM/AAAA" required></div>
       ${fields.select('estado_civil','Estado civil',['Solteiro(a)','Casado(a)','União estável','Divorciado(a)','Viúvo(a)'])}
       ${fields.input('cpf','CPF','text','Digite seu CPF')}
+      ${fields.input('email','E-mail','email','Digite seu e-mail')}
       ${fields.input('whatsapp','Telefone/WhatsApp 1','tel','(99) 9 0000-0000')}
       ${fields.input('whatsapp_secundario','Telefone/WhatsApp 2','tel','(99) 9 0000-0000')}`
   },
